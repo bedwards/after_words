@@ -37,7 +37,7 @@ TARGET_LANGUAGE = "English"
 
 # Output Configuration
 OUTPUT_DIR = Path("./translations")
-OUTPUT_FILENAME = "translated_text.txt"
+OUTPUT_FILENAME = None  # command line arg position 2 required
 SAVE_THINKING_LOG = False  # Save thinking process to separate file
 THINKING_LOG_FILENAME = "thinking_log.json"
 
@@ -250,9 +250,9 @@ def main():
     """Main processing function"""
     parser = argparse.ArgumentParser(description='Translate and rewrite texts using Ollama thinking models')
     parser.add_argument('input_file', type=str, help='Path to input text file')
+    parser.add_argument('output_file', type=str, help='Output filename')
     parser.add_argument('--model', type=str, default=MODEL_NAME, help='Ollama model to use')
     parser.add_argument('--author', type=str, default=TARGET_AUTHOR, help='Target author style')
-    parser.add_argument('--output', type=str, default=OUTPUT_FILENAME, help='Output filename')
     parser.add_argument('--test', action='store_true', help='Test mode - process only a few pages')
     parser.add_argument('--pages', type=int, default=TEST_PAGES, help='Number of pages in test mode')
     
@@ -262,7 +262,7 @@ def main():
     global MODEL_NAME, TARGET_AUTHOR, OUTPUT_FILENAME, TEST_MODE, TEST_PAGES
     MODEL_NAME = args.model
     TARGET_AUTHOR = args.author
-    OUTPUT_FILENAME = args.output
+    OUTPUT_FILENAME = args.output_file
     TEST_MODE = args.test
     if args.test:
         TEST_PAGES = args.pages
