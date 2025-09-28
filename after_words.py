@@ -40,6 +40,7 @@ OUTPUT_DIR = Path("./translations")
 OUTPUT_FILENAME = None  # command line arg position 2 required
 SAVE_THINKING_LOG = True  # Save thinking process to separate file
 THINKING_LOG_FILENAME = "thinking_log.json"
+STREAM = True
 
 # Processing Options
 TEST_MODE = False  # Set to True to process only TEST_PAGES
@@ -203,23 +204,58 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
             if VERBOSE:
                 print(f"  Processing page {page_num}/{total_pages}...", end='', flush=True)
             
-            # Call Ollama with thinking enabled
-            response = chat(
-                model=MODEL_NAME,
-                messages=messages,
-                think=True,
-                options={
-                    'temperature': TEMPERATURE,
-                    'top_p': TOP_P
-                }
-            )
-            
-            thinking = response.message.thinking or ""
-            content = response.message.content or ""
-            
+            thinking = ""
+            content = ""
+
+            if STREAM:
+                # Call Ollama with thinking enabled and streaming
+                print(f"  Processing page {page_num}/{total_pages}...", flush=True)
+
+                for part in chat(
+                    model=MODEL_NAME,
+                    messages=messages,
+                    think=True,
+                    stream=True,
+                    options={
+                        'temperature': TEMPERATURE,
+                        'top_p': TOP_P
+                    }
+                ):
+                    if part.get('message', {}).get('thinking'):
+                        thinking += part['message']['thinking']
+                        if VERBOSE:
+                            print(part['message']['thinking'], end='', flush=True)
+                    
+                    if part.get('message', {}).get('content'):
+                        content += part['message']['content']
+                        if VERBOSE:
+                            print(part['message']['content'], end='', flush=True)
+
+                if VERBOSE:
+                    print()  # New line after streaming
+
+            else:
+                # Call Ollama with thinking enabled
+                response = chat(
+                    model=MODEL_NAME,
+                    messages=messages,
+                    think=True,
+                    options={
+                        'temperature': TEMPERATURE,
+                        'top_p': TOP_P
+                    }
+                )
+                
+                thinking = response.message.thinking or ""
+                content = response.message.content or ""
+
             # Clean up the content (remove any meta-commentary)
             content = content.strip()
-            
+
+            # Add this debug line
+            if VERBOSE or not thinking:
+                print(f"\n  [Debug] Thinking length: {len(thinking)} chars", flush=True)
+
             # Remove common prefixes that models might add
             prefixes_to_remove = [
                 "Here is the translation:",
@@ -230,7 +266,7 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
             for prefix in prefixes_to_remove:
                 if content.lower().startswith(prefix.lower()):
                     content = content[len(prefix):].strip()
-            
+
             if VERBOSE:
                 print(" ✓")
                 if thinking and len(thinking) > 100:
@@ -326,14 +362,13 @@ def main():
                 outfile.write(translated)
                 outfile.flush()
                 
-                # Log thinking if enabled
-                if SAVE_THINKING_LOG and thinking:
-                    thinking_log.append({
-                        'page': i,
-                        'original_preview': page[:200],
-                        'thinking': thinking,
-                        'translation_preview': translated[:200]
-                    })
+                # Save thinking log
+                if SAVE_THINKING_LOG and thinking_log:
+                    with open(thinking_log_path, 'w', encoding='utf-8') as f:
+                        json.dump(thinking_log, f, indent=2, ensure_ascii=False)
+                    print(f"\nThinking log saved to: {thinking_log_path}")
+                elif SAVE_THINKING_LOG:
+                    print(f"\nNo thinking data captured - check if model supports thinking mode")
                 
                 # Rate limiting
                 if i < total_pages:
