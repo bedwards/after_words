@@ -1,4 +1,4 @@
-I'll create a comprehensive Python script for translating and rewriting public domain texts using Ollama's thinking models. This script will process texts page-by-page while maintaining the literary style of a chosen author.## Expert Recommendations for Using This Script
+Recommendations for Using This Script
 
 ### **Model Selection**
 - **DeepSeek-R1** (default) - Excellent for complex literary translation requiring deep reasoning about style and nuance
