@@ -210,6 +210,9 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
             if STREAM:
                 # Call Ollama with thinking enabled and streaming
                 print(f"  Processing page {page_num}/{total_pages}...", flush=True)
+                
+                thinking_started = False
+                content_started = False
 
                 for part in chat(
                     model=MODEL_NAME,
@@ -222,18 +225,24 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
                     }
                 ):
                     if part.get('message', {}).get('thinking'):
+                        if not thinking_started and VERBOSE:
+                            print("  [Thinking...] ", end='', flush=True)
+                            thinking_started = True
                         thinking += part['message']['thinking']
-                        if VERBOSE:
-                            print(part['message']['thinking'], end='', flush=True)
                     
                     if part.get('message', {}).get('content'):
+                        if not content_started and VERBOSE:
+                            if thinking_started:
+                                print()  # New line after thinking
+                            print("  [Output] ", end='', flush=True)
+                            content_started = True
                         content += part['message']['content']
+                        # Only print content, not thinking
                         if VERBOSE:
                             print(part['message']['content'], end='', flush=True)
 
                 if VERBOSE:
                     print()  # New line after streaming
-
             else:
                 # Call Ollama with thinking enabled
                 response = chat(
