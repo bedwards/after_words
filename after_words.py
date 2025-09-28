@@ -45,7 +45,7 @@ STREAM = True
 # Processing Options
 TEST_MODE = False  # Set to True to process only TEST_PAGES
 TEST_PAGES = 5  # Number of pages to process in test mode
-VERBOSE = False  # Print progress and thinking summaries
+VERBOSE = True  # Print progress and thinking summaries
 RETRY_ATTEMPTS = 3  # Retry failed pages
 RETRY_DELAY = 5  # Seconds between retries
 
