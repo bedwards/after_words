@@ -208,8 +208,11 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
             content = ""
 
             if STREAM:
-                # Call Ollama with thinking enabled and streaming
                 print(f"  Processing page {page_num}/{total_pages}...", flush=True)
+                
+                # Open files for streaming
+                thinking_file = open(f"translations/thinking_page_{page_num}.txt", 'w', encoding='utf-8')
+                content_file = open(f"translations/content_page_{page_num}.txt", 'w', encoding='utf-8')
                 
                 thinking_started = False
                 content_started = False
@@ -219,30 +222,34 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
                     messages=messages,
                     think=True,
                     stream=True,
-                    options={
-                        'temperature': TEMPERATURE,
-                        'top_p': TOP_P
-                    }
+                    options={'temperature': TEMPERATURE, 'top_p': TOP_P}
                 ):
                     if part.get('message', {}).get('thinking'):
-                        if not thinking_started and VERBOSE:
-                            print("  [Thinking...] ", end='', flush=True)
+                        chunk = part['message']['thinking']
+                        thinking += chunk
+                        thinking_file.write(chunk)
+                        thinking_file.flush()  # Immediate write
+                        if not thinking_started:
+                            print("  [THINKING] ", end='', flush=True)
                             thinking_started = True
-                        thinking += part['message']['thinking']
+                        print('.', end='', flush=True)  # Progress dots
                     
                     if part.get('message', {}).get('content'):
-                        if not content_started and VERBOSE:
+                        chunk = part['message']['content']
+                        content += chunk
+                        content_file.write(chunk)
+                        content_file.flush()  # Immediate write
+                        if not content_started:
                             if thinking_started:
-                                print()  # New line after thinking
-                            print("  [Output] ", end='', flush=True)
+                                print()
+                            print("  [CONTENT] ", end='', flush=True)
                             content_started = True
-                        content += part['message']['content']
-                        # Only print content, not thinking
-                        if VERBOSE:
-                            print(part['message']['content'], end='', flush=True)
+                        print(chunk, end='', flush=True)  # Show content live
+                
+                thinking_file.close()
+                content_file.close()
+                print()  # New line after streaming
 
-                if VERBOSE:
-                    print()  # New line after streaming
             else:
                 # Call Ollama with thinking enabled
                 response = chat(
@@ -370,14 +377,21 @@ def main():
                     outfile.write('\n\n')
                 outfile.write(translated)
                 outfile.flush()
-                
-                # Save thinking log
+
+                # Log thinking if enabled (ADD THIS)
+                if SAVE_THINKING_LOG and thinking:
+                    thinking_log.append({
+                        'page': i,
+                        'original_preview': page[:200],
+                        'thinking': thinking,
+                        'translation_preview': translated[:200]
+                    })
+
+                # Save thinking log immediately after each page (KEEP THIS)
                 if SAVE_THINKING_LOG and thinking_log:
                     with open(thinking_log_path, 'w', encoding='utf-8') as f:
                         json.dump(thinking_log, f, indent=2, ensure_ascii=False)
                     print(f"\nThinking log saved to: {thinking_log_path}")
-                elif SAVE_THINKING_LOG:
-                    print(f"\nNo thinking data captured - check if model supports thinking mode")
                 
                 # Rate limiting
                 if i < total_pages:
@@ -387,13 +401,7 @@ def main():
                 print(f"\nError processing page {i}: {str(e)}")
                 print("Skipping to next page...")
                 continue
-    
-    # Save thinking log
-    if SAVE_THINKING_LOG and thinking_log:
-        with open(OUTPUT_DIR / THINKING_LOG_FILENAME, 'w', encoding='utf-8') as f:
-            json.dump(thinking_log, f, indent=2, ensure_ascii=False)
-        print(f"\nThinking log saved to: {OUTPUT_DIR / THINKING_LOG_FILENAME}")
-    
+        
     print(f"\n{'='*60}")
     print(f"Translation complete!")
     print(f"Output saved to: {output_path}")
