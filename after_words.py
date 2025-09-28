@@ -5,6 +5,7 @@ Translates and rewrites public domain texts in the style of specific authors
 """
 
 import os
+import random
 import re
 import sys
 import time
@@ -232,7 +233,8 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
                         if not thinking_started:
                             print("  [THINKING] ", end='', flush=True)
                             thinking_started = True
-                        print('.', end='', flush=True)  # Progress dots
+                        if random.random() < 0.01:
+                            print('.', end='', flush=True)  # Progress dots
                     
                     if part.get('message', {}).get('content'):
                         chunk = part['message']['content']
