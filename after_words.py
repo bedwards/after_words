@@ -20,7 +20,7 @@ from ollama import chat
 # ========================================================================
 
 # Model Configuration
-MODEL_NAME = "deepseek-r1"  # Default thinking model
+MODEL_NAME = "deepseek-r1:8b"  # Default thinking model
 TEMPERATURE = 0.7  # Balance between creativity and accuracy (0.0-1.0)
 TOP_P = 0.9  # Nucleus sampling parameter
 
