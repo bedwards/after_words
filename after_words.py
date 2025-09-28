@@ -64,6 +64,8 @@ DELAY_BETWEEN_PAGES = 0.1  # Seconds to wait between pages (be kind to your GPU)
 
 SYSTEM_PROMPT = """You are a master literary translator and writer with deep expertise in {target_author}'s distinctive writing style. Your task is to translate and rewrite the given text from {source_language} into {target_language}, capturing not just the meaning but transforming it into {target_author}'s unique voice and style.
 
+ALL OUTPUT WORDS MUST BE IN ENGLISH
+
 CRITICAL INSTRUCTIONS:
 - Output ONLY the translated and rewritten text
 - Use no formatting markers, no titles, no metadata
@@ -72,9 +74,12 @@ CRITICAL INSTRUCTIONS:
 - Simply produce the raw literary text in the target style
 - Maintain paragraph breaks as in the original
 - This is creative literary translation, not literal translation
-- Preserve paragraph breaks, but do not preserve line breaks (do not break sentences)"""
+- Preserve paragraph breaks, but do not preserve line breaks (do not break sentences)
+- ALL OUTPUT WORDS MUST BE IN ENGLISH"""
 
 USER_PROMPT = """Translate and rewrite the following text into {target_language} in the distinctive style of {target_author}. Remember: output ONLY the translated literary text, nothing else.
+
+ALL OUTPUT WORDS MUST BE IN ENGLISH
 
 This is not a mechanical act of carrying words across borders, but a re-imagining in which the story is pressed through a new consciousness. The text should emerge altered, like fabric washed and wrung out until the weave shows different patterns of light. It must not only reproduce meaning but metabolize it, carrying the marks of the present voice, the accidents of choice, the inevitable distortions that become its signature.
 
@@ -84,6 +89,8 @@ Original text:
 ---
 {text}
 ---
+
+ALL OUTPUT WORDS MUST BE IN ENGLISH
 
 Now produce the translation in {target_author}'s style:"""
 
