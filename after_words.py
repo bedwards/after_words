@@ -31,8 +31,13 @@ MIN_WORDS_PER_PAGE = 200  # Minimum words before creating a new page
 MAX_WORDS_PER_PAGE = 800  # Maximum words per page
 PRESERVE_CHAPTER_BREAKS = True  # Keep chapter divisions intact
 
+style = {
+    'Sheila Heti': 'Write with a searching, self-aware energy that continually questions its own motives and hesitations, layering confession with detour, and detour with revelation. Let the sentences wander toward discovery, refusing neatness, sometimes exposing the scaffolding of thought, sometimes tumbling into lyric candor. The tone should feel both intimate and estranged, as though the act of writing is simultaneously creating and undoing the world it describes.',
+}
+
 # Style Configuration
-TARGET_AUTHOR = "Karl Ove Knausgård"  # Target writing style
+TARGET_AUTHOR = "Sheila Heti" # "Karl Ove Knausgård"  # Target writing style
+TARGET_AUTHOR_STYLE = style[TARGET_AUTHOR]
 SOURCE_LANGUAGE = "German"  # "auto" for detection, or specify: "German", "French", etc.
 TARGET_LANGUAGE = "English"
 
@@ -70,6 +75,10 @@ CRITICAL INSTRUCTIONS:
 - Preserve paragraph breaks, but do not preserve line breaks (do not break sentences)"""
 
 USER_PROMPT = """Translate and rewrite the following text into {target_language} in the distinctive style of {target_author}. Remember: output ONLY the translated literary text, nothing else.
+
+This is not a mechanical act of carrying words across borders, but a re-imagining in which the story is pressed through a new consciousness. The text should emerge altered, like fabric washed and wrung out until the weave shows different patterns of light. It must not only reproduce meaning but metabolize it, carrying the marks of the present voice, the accidents of choice, the inevitable distortions that become its signature.
+
+{target_author_style}
 
 Original text:
 ---
@@ -191,6 +200,7 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
     user = USER_PROMPT.format(
         target_language=TARGET_LANGUAGE,
         target_author=TARGET_AUTHOR,
+        target_author_style=TARGET_AUTHOR_STYLE,
         text=page_text
     )
     
