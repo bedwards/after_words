@@ -64,7 +64,8 @@ CRITICAL INSTRUCTIONS:
 - Do not ask questions or make suggestions
 - Simply produce the raw literary text in the target style
 - Maintain paragraph breaks as in the original
-- This is creative literary translation, not literal translation"""
+- This is creative literary translation, not literal translation
+- Preserve paragraph breaks, but do not preserve line breaks (do not break sentences)"""
 
 USER_PROMPT = """Translate and rewrite the following text into {target_language} in the distinctive style of {target_author}. Remember: output ONLY the translated literary text, nothing else.
 
