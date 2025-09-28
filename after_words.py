@@ -32,33 +32,30 @@ PRESERVE_CHAPTER_BREAKS = True  # Keep chapter divisions intact
 
 # Style Configuration
 TARGET_AUTHOR = "Karl Ove Knausgård"  # Target writing style
-SOURCE_LANGUAGE = "auto"  # "auto" for detection, or specify: "German", "French", etc.
+SOURCE_LANGUAGE = "German"  # "auto" for detection, or specify: "German", "French", etc.
 TARGET_LANGUAGE = "English"
 
 # Output Configuration
 OUTPUT_DIR = Path("./translations")
 OUTPUT_FILENAME = "translated_text.txt"
-SAVE_THINKING_LOG = True  # Save thinking process to separate file
+SAVE_THINKING_LOG = False  # Save thinking process to separate file
 THINKING_LOG_FILENAME = "thinking_log.json"
 
 # Processing Options
 TEST_MODE = False  # Set to True to process only TEST_PAGES
 TEST_PAGES = 5  # Number of pages to process in test mode
-VERBOSE = True  # Print progress and thinking summaries
+VERBOSE = False  # Print progress and thinking summaries
 RETRY_ATTEMPTS = 3  # Retry failed pages
 RETRY_DELAY = 5  # Seconds between retries
 
 # Rate Limiting
-DELAY_BETWEEN_PAGES = 1  # Seconds to wait between pages (be kind to your GPU)
+DELAY_BETWEEN_PAGES = 0.1  # Seconds to wait between pages (be kind to your GPU)
 
 # ========================================================================
 # PROMPT TEMPLATES
 # ========================================================================
 
 SYSTEM_PROMPT = """You are a master literary translator and writer with deep expertise in {target_author}'s distinctive writing style. Your task is to translate and rewrite the given text from {source_language} into {target_language}, capturing not just the meaning but transforming it into {target_author}'s unique voice and style.
-
-Key characteristics to embody:
-{author_style_notes}
 
 CRITICAL INSTRUCTIONS:
 - Output ONLY the translated and rewritten text
@@ -68,49 +65,6 @@ CRITICAL INSTRUCTIONS:
 - Simply produce the raw literary text in the target style
 - Maintain paragraph breaks as in the original
 - This is creative literary translation, not literal translation"""
-
-# Author style descriptions (extend as needed)
-AUTHOR_STYLES = {
-    "Karl Ove Knausgård": """
-    - Extremely detailed, almost obsessive attention to mundane moments
-    - Long, flowing sentences that accumulate detail upon detail
-    - Direct, unadorned language that paradoxically creates poetry through accumulation
-    - Deeply introspective, examining every thought and sensation
-    - Unflinching honesty about uncomfortable or embarrassing moments
-    - Time dilates around significant moments
-    - Physical sensations described with scientific precision
-    - Memories interrupt the present narrative flow naturally""",
-    
-    "Rachel Cusk": """
-    - Observational, detached narrative voice
-    - Characters revealed through reported dialogue
-    - Philosophical digressions emerging from everyday situations
-    - Precise, crystalline prose with architectural sentence structure
-    - Themes of identity, marriage, and artistic creation
-    - Reality filtered through layers of perception
-    - Conversations become vehicles for existential exploration
-    - Subtle irony and intellectual distance""",
-    
-    "Annie Ernaux": """
-    - Austere, stripped-down prose
-    - Clinical, almost sociological observation
-    - Personal experience as collective memory
-    - Temporal fluidity between past and present
-    - Class consciousness and social observation
-    - Emotionally restrained yet deeply affecting
-    - Documentary precision in recording details
-    - The personal as political""",
-    
-    "W.G. Sebald": """
-    - Meandering, digressive narrative structure
-    - Melancholic tone suffused with historical weight
-    - Blurred boundaries between fiction and documentary
-    - Long, complex sentences with Germanic syntax
-    - Themes of memory, loss, and historical trauma
-    - Precise architectural and landscape descriptions
-    - Photographs and documents woven into text
-    - Dreamlike quality to transitions"""
-}
 
 USER_PROMPT = """Translate and rewrite the following text into {target_language} in the distinctive style of {target_author}. Remember: output ONLY the translated literary text, nothing else.
 
@@ -225,15 +179,10 @@ def detect_language(text: str) -> str:
 
 def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str, str]:
     """Translate a single page using Ollama with thinking mode"""
-    
-    # Prepare prompts
-    author_style = AUTHOR_STYLES.get(TARGET_AUTHOR, "Write in a clear, engaging literary style")
-    
     system = SYSTEM_PROMPT.format(
         target_author=TARGET_AUTHOR,
         source_language=SOURCE_LANGUAGE if SOURCE_LANGUAGE != "auto" else "the source language",
         target_language=TARGET_LANGUAGE,
-        author_style_notes=author_style
     )
     
     user = USER_PROMPT.format(
