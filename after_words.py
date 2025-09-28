@@ -249,6 +249,8 @@ def translate_page(page_text: str, page_num: int, total_pages: int) -> Tuple[str
 
 def main():
     """Main processing function"""
+    global MODEL_NAME, TARGET_AUTHOR, OUTPUT_FILENAME, TEST_MODE, TEST_PAGES
+
     parser = argparse.ArgumentParser(description='Translate and rewrite texts using Ollama thinking models')
     parser.add_argument('input_file', type=str, help='Path to input text file')
     parser.add_argument('output_file', type=str, help='Output filename')
@@ -260,7 +262,6 @@ def main():
     args = parser.parse_args()
     
     # Update global variables from arguments
-    global MODEL_NAME, TARGET_AUTHOR, OUTPUT_FILENAME, TEST_MODE, TEST_PAGES
     MODEL_NAME = args.model
     TARGET_AUTHOR = args.author
     OUTPUT_FILENAME = args.output_file
