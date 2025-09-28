@@ -38,7 +38,7 @@ TARGET_LANGUAGE = "English"
 # Output Configuration
 OUTPUT_DIR = Path("./translations")
 OUTPUT_FILENAME = None  # command line arg position 2 required
-SAVE_THINKING_LOG = False  # Save thinking process to separate file
+SAVE_THINKING_LOG = True  # Save thinking process to separate file
 THINKING_LOG_FILENAME = "thinking_log.json"
 
 # Processing Options
